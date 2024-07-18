@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QComboBox>
+#include <QCheckBox>
 
 namespace Ui {
 class MainWindow;
