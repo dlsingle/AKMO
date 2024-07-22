@@ -162,7 +162,7 @@
     <item row="0" column="1">
      <widget class="QLabel" name="label_5">
       <property name="text">
-       <string>Режим работы GPO портов </string>
+       <string>Режим работы GPIO портов </string>
       </property>
      </widget>
     </item>
@@ -355,7 +355,7 @@
     <item row="4" column="0" colspan="2">
      <widget class="QPlainTextEdit" name="plainTextEdit">
       <property name="plainText">
-       <string>Consol</string>
+       <string/>
       </property>
      </widget>
     </item>
