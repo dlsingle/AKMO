@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setMinimumSize(317,257);
 
     connect(ui->action_3, &QAction::triggered, this, &MainWindow::on_saveAction);
-    //connect(ui->action_5, &QAction::triggered, this, &MainWindow::on_loadAction);
+    connect(ui->action_5, &QAction::triggered, this, &MainWindow::on_loadAction);
 
     connectsignal();
     for (int i = 0; i < 7 ; i++){
@@ -128,7 +128,7 @@ void MainWindow::savefile(const QString &filePath)
         QJsonDocument doc(config);
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly)) {
-            QMessageBox::warning(this, "Error", "Failed to open file for writing");
+            QMessageBox::warning(this, "Ошибка", "Не удалось открыть файл для записи");
             return;
         }
         file.write(doc.toJson());
@@ -137,6 +137,76 @@ void MainWindow::savefile(const QString &filePath)
         console(">Configuration saved to: " + filePath);
 }
 
+void MainWindow::on_loadAction()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Load Configuration", "", "JSON Files (*.json)");
+    if (filePath.isEmpty()) return;
+
+    loadfile(filePath);
+}
+void MainWindow::loadfile(const QString &filePath)
+{
+    QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::warning(this, "Ошибка", "Не удалось открыть файл для чтения");
+            return;
+        }
+
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (doc.isNull() || !doc.isObject()) {
+            QMessageBox::warning(this, "Ошибка", "Неверный файл JSON");
+            return;
+        }
+
+        QJsonObject config = doc.object();
+        QJsonArray orderedConfig = config["config"].toArray();
+
+        for (const QJsonValue &value : orderedConfig) {
+            QJsonObject obj = value.toObject();
+
+            if (obj.contains("Серия устройства")) {
+                ui->comboBox->setCurrentText(obj["Серия устройства"].toString());
+            }
+            if (obj.contains("Модель устройства")) {
+                ui->comboBox_2->setCurrentText(obj["Модель устройства"].toString());
+            }
+            if (obj.contains("Частота тактирования ядра")) {
+                ui->spinBox->setValue(obj["Частота тактирования ядра"].toInt());
+            }
+            if (obj.contains("Частота тактирования переферейных устройств")) {
+                ui->spinBox_2->setValue(obj["Частота тактирования переферейных устройств"].toInt());
+            }
+            if (obj.contains("Задействованные интерфейсы")) {
+                QJsonObject interfaces = obj["Задействованные интерфейсы"].toObject();
+                for (int row = 0; row < ui->tableWidget_2->rowCount(); ++row) {
+                    QString interfaceName = ui->tableWidget_2->item(row, 0)->text();
+                    QCheckBox *checkBox = qobject_cast<QCheckBox*>(ui->tableWidget_2->cellWidget(row, 1));
+                    if (interfaces.contains(interfaceName)) {
+                        checkBox->setChecked(interfaces[interfaceName].toBool());
+                    }
+                }
+            }
+            if (obj.contains("Режим работы GPIO портов")) {
+                QJsonArray gpioArray = obj["Режим работы GPIO портов"].toArray();
+                for (int row = 0; row < gpioArray.size() && row < ui->tableWidget->rowCount(); ++row) {
+                    QJsonObject gpioObject = gpioArray[row].toObject();
+                    QComboBox *modeComboBox = qobject_cast<QComboBox*>(ui->tableWidget->cellWidget(row, 0));
+                    QComboBox *pullComboBox = qobject_cast<QComboBox*>(ui->tableWidget->cellWidget(row, 1));
+                    if (gpioObject.contains("Mode")) {
+                        modeComboBox->setCurrentText(gpioObject["Mode"].toString());
+                    }
+                    if (gpioObject.contains("Pull")) {
+                        pullComboBox->setCurrentText(gpioObject["Pull"].toString());
+                    }
+                }
+            }
+        }
+
+        console(">Configuration loaded from: " + filePath);
+}
 
 
 MainWindow::~MainWindow()
