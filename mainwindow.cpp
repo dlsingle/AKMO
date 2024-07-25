@@ -76,6 +76,11 @@ void MainWindow::on_saveAction()
     QString filePath = QFileDialog::getSaveFileName(this, "Save Configuration", "", "JSON Files (*.json)");
     if (filePath.isEmpty()) return;
 
+    if (!filePath.endsWith(".json", Qt::CaseInsensitive)) {
+        filePath += ".json";
+    }
+
+
     savefile(filePath);
 }
 void MainWindow::savefile(const QString &filePath)
@@ -100,27 +105,27 @@ void MainWindow::savefile(const QString &filePath)
         QJsonArray orderedConfig;
 
         QJsonObject seriesObj;
-        seriesObj["Серия устройства"] = ui->comboBox->currentText();
+        seriesObj["Series"] = ui->comboBox->currentText();
         orderedConfig.append(seriesObj);
 
         QJsonObject modelObj;
-        modelObj["Модель устройства"] = ui->comboBox_2->currentText();
+        modelObj["Model"] = ui->comboBox_2->currentText();
         orderedConfig.append(modelObj);
 
         QJsonObject coreFreqObj;
-        coreFreqObj["Частота тактирования ядра"] = ui->spinBox->value();
+        coreFreqObj["Frequency"] = ui->spinBox->value();
         orderedConfig.append(coreFreqObj);
 
         QJsonObject peripheralFreqObj;
-        peripheralFreqObj["Частота тактирования переферейных устройств"] = ui->spinBox_2->value();
+        peripheralFreqObj["Frequency peripheral"] = ui->spinBox_2->value();
         orderedConfig.append(peripheralFreqObj);
 
         QJsonObject interfacesObj;
-        interfacesObj["Задействованные интерфейсы"] = interfaces;
+        interfacesObj["Interfaces"] = interfaces;
         orderedConfig.append(interfacesObj);
 
         QJsonObject gpioObj;
-        gpioObj["Режим работы GPIO портов"] = gpioArray;
+        gpioObj["GPIO"] = gpioArray;
         orderedConfig.append(gpioObj);
 
         config["config"] = orderedConfig;
@@ -128,7 +133,7 @@ void MainWindow::savefile(const QString &filePath)
         QJsonDocument doc(config);
         QFile file(filePath);
         if (!file.open(QIODevice::WriteOnly)) {
-            QMessageBox::warning(this, "Ошибка", "Не удалось открыть файл для записи");
+            QMessageBox::warning(this, "Error", "Failed to open file for writing");
             return;
         }
         file.write(doc.toJson());
@@ -146,18 +151,27 @@ void MainWindow::on_loadAction()
 }
 void MainWindow::loadfile(const QString &filePath)
 {
-    QFile file(filePath);
+        QFile file(filePath);
         if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::warning(this, "Ошибка", "Не удалось открыть файл для чтения");
+            QMessageBox::warning(this, "Error", "Failed to open file for reading");
             return;
         }
 
         QByteArray data = file.readAll();
         file.close();
 
-        QJsonDocument doc = QJsonDocument::fromJson(data);
+        QJsonParseError jsonError;
+
+        QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+
         if (doc.isNull() || !doc.isObject()) {
-            QMessageBox::warning(this, "Ошибка", "Неверный файл JSON");
+            QString errorMsg = "Invalid JSON file";
+
+                if (jsonError.error != QJsonParseError::NoError) {
+                    errorMsg += ": " + jsonError.errorString() + " in position " + QString::number(jsonError.offset);
+            }
+
+            QMessageBox::warning(this, "Error", errorMsg);
             return;
         }
 
@@ -167,20 +181,20 @@ void MainWindow::loadfile(const QString &filePath)
         for (const QJsonValue &value : orderedConfig) {
             QJsonObject obj = value.toObject();
 
-            if (obj.contains("Серия устройства")) {
-                ui->comboBox->setCurrentText(obj["Серия устройства"].toString());
+            if (obj.contains("Series")) {
+                ui->comboBox->setCurrentText(obj["Series"].toString());
             }
-            if (obj.contains("Модель устройства")) {
-                ui->comboBox_2->setCurrentText(obj["Модель устройства"].toString());
+            if (obj.contains("Model")) {
+                ui->comboBox_2->setCurrentText(obj["Model"].toString());
             }
-            if (obj.contains("Частота тактирования ядра")) {
-                ui->spinBox->setValue(obj["Частота тактирования ядра"].toInt());
+            if (obj.contains("Frequency")) {
+                ui->spinBox->setValue(obj["Frequency"].toInt());
             }
-            if (obj.contains("Частота тактирования переферейных устройств")) {
-                ui->spinBox_2->setValue(obj["Частота тактирования переферейных устройств"].toInt());
+            if (obj.contains("Frequency peripheral")) {
+                ui->spinBox_2->setValue(obj["Frequency peripheral"].toInt());
             }
-            if (obj.contains("Задействованные интерфейсы")) {
-                QJsonObject interfaces = obj["Задействованные интерфейсы"].toObject();
+            if (obj.contains("Interfaces")) {
+                QJsonObject interfaces = obj["Interfaces"].toObject();
                 for (int row = 0; row < ui->tableWidget_2->rowCount(); ++row) {
                     QString interfaceName = ui->tableWidget_2->item(row, 0)->text();
                     QCheckBox *checkBox = qobject_cast<QCheckBox*>(ui->tableWidget_2->cellWidget(row, 1));
@@ -189,8 +203,8 @@ void MainWindow::loadfile(const QString &filePath)
                     }
                 }
             }
-            if (obj.contains("Режим работы GPIO портов")) {
-                QJsonArray gpioArray = obj["Режим работы GPIO портов"].toArray();
+            if (obj.contains("GPIO")) {
+                QJsonArray gpioArray = obj["GPIO"].toArray();
                 for (int row = 0; row < gpioArray.size() && row < ui->tableWidget->rowCount(); ++row) {
                     QJsonObject gpioObject = gpioArray[row].toObject();
                     QComboBox *modeComboBox = qobject_cast<QComboBox*>(ui->tableWidget->cellWidget(row, 0));

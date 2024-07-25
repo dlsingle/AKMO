@@ -6,17 +6,37 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>786</width>
-    <height>576</height>
+    <width>787</width>
+    <height>507</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="font">
+    <font>
+     <family>Arimo</family>
+     <pointsize>12</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0" rowspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -43,7 +63,7 @@
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Частота тактирования переферейных устройств</string>
+           <string>Частота тактирования периферийных устройств</string>
           </property>
          </widget>
         </item>
@@ -161,8 +181,14 @@
     </item>
     <item row="0" column="1">
      <widget class="QLabel" name="label_5">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="text">
-       <string>Режим работы GPIO портов </string>
+       <string>Режимы работы GPIO портов </string>
       </property>
      </widget>
     </item>
@@ -174,6 +200,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
       <row>
        <property name="text">
         <string>1</string>
@@ -253,10 +282,16 @@
        <property name="text">
         <string>Mode</string>
        </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>Pull</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
      </widget>
@@ -270,6 +305,12 @@
     </item>
     <item row="3" column="0">
      <widget class="QTableWidget" name="tableWidget_2">
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>125</number>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
       <row>
        <property name="text">
         <string>1</string>
@@ -309,10 +350,16 @@
        <property name="text">
         <string>Interface name</string>
        </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>Enable</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
       <item row="0" column="0">
@@ -366,7 +413,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>786</width>
+     <width>787</width>
      <height>30</height>
     </rect>
    </property>
